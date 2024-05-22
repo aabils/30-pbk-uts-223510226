@@ -2,139 +2,43 @@
   <div class="wrapper">
     <nav class="navbar">
       <ul>
+        <li><button @click="selectMenu = 'home'">HOME</button></li>
         <li><button @click="selectMenu = 'post'">POST</button></li>
         <li><button @click="selectMenu = 'todos'">TODOS</button></li>
       </ul>
     </nav>
-    <div v-if="selectMenu === 'todos'">
-      <h1>Daftar Aktivitas</h1>
-      <input type="text" v-model="newActivity.name" placeholder="Tambahkan kegiatan baru">
-      <div class="datetime-container">
-        <label for="datetime">Tanggal & Jam:</label>
-        <input id="datetime" type="datetime-local" v-model="newActivity.dateTime">
-      </div>
-      <button @click="addActivity">Tambah</button>
-      <table>
-        <thead>
-          <tr>
-            <th>Aktivitas</th>
-            <th>Tanggal & Jam</th>
-            <th>Status</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(activity, index) in activities" :key="index">
-            <td>{{ activity.name }}</td>
-            <td>{{ formatDate(activity.dateTime) }}</td>
-            <td>
-              <input type="checkbox" v-model="activity.completed">
-              <span :class="{ 'completed': activity.completed }">{{ activity.completed ? 'Selesai' : 'Belum Selesai' }}</span>
-            </td>
-            <td>
-              <button @click="toggleEditMode(activity)">{{ activity.editMode ? 'Batal' : 'Edit' }}</button>
-              <button v-if="activity.editMode" @click="updateActivity(activity)">Simpan</button>
-              <button @click="removeActivity(index)">Hapus</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div v-else-if="selectMenu === 'post'">
-      <h1>Daftar Postingan</h1>
-      <div>
-        <label for="user">Pilih User:</label>
-        <select v-model="selectedUser">
-          <option v-for="user in users" :key="user.id" :value="user.id">{{ user.name }}</option>
-        </select>
-      </div>
-      <div v-if="posts.length">
-        <h2>Postingan User</h2>
-        <ul>
-          <li v-for="post in posts" :key="post.id">
-            <h3>{{ post.title }}</h3>
-            <p>{{ post.body }}</p>
-          </li>
-        </ul>
-      </div>
-      <div v-else>
-        <p>Pilih user untuk melihat postingan</p>
-      </div>
-    </div>
+    <component :is="currentComponent">
+      <slot></slot>
+    </component>
   </div>
 </template>
 
 <script>
+import Todos from './Todos.vue';
+import Post from './Post.vue';
+import Home from './Home.vue';
+
 export default {
+  components: {
+    Todos,
+    Post,
+    Home
+  },
   data() {
     return {
-      selectMenu: 'todos',
-      newActivity: {
-        name: '',
-        dateTime: ''
-      },
-      activities: [],
-      users: [],
-      selectedUser: null,
-      posts: []
+      selectMenu: 'home' // Default to home page
     };
   },
-  created() {
-    this.fetchUsers();
-  },
-  watch: {
-    selectedUser(newUserId) {
-      this.fetchPosts();
-    },
-    selectMenu(newMenu) {
-      if (newMenu === 'post' && this.selectedUser) {
-        this.fetchPosts();
+  computed: {
+    currentComponent() {
+      switch (this.selectMenu) {
+        case 'todos':
+          return 'Todos';
+        case 'post':
+          return 'Post';
+        default:
+          return 'Home';
       }
-    }
-  },
-  methods: {
-    fetchUsers() {
-      fetch('https://jsonplaceholder.typicode.com/users')
-        .then(response => response.json())
-        .then(data => {
-          this.users = data;
-        });
-    },
-    fetchPosts() {
-      if (this.selectedUser) {
-        fetch(`https://jsonplaceholder.typicode.com/posts?userId=${this.selectedUser}`)
-          .then(response => response.json())
-          .then(data => {
-            this.posts = data;
-          });
-      } else {
-        this.posts = [];
-      }
-    },
-    addActivity() {
-      if (this.newActivity.name.trim() !== '' && this.newActivity.dateTime.trim() !== '') {
-        this.activities.push({
-          name: this.newActivity.name,
-          dateTime: this.newActivity.dateTime,
-          completed: false,
-          editMode: false
-        });
-        this.newActivity.name = '';
-        this.newActivity.dateTime = '';
-      }
-    },
-    removeActivity(index) {
-      this.activities.splice(index, 1);
-    },
-    toggleEditMode(activity) {
-      activity.editMode = !activity.editMode;
-    },
-    updateActivity(activity) {
-      activity.editMode = false;
-    },
-    formatDate(dateTime) {
-      const options = { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' };
-      return new Date(dateTime).toLocaleDateString('en-US', options);
     }
   }
 };
@@ -194,18 +98,5 @@ nav ul li button {
 
 h1 {
   margin-top: 4rem;
-}
-
-.completed {
-  text-decoration: line-through;
-}
-
-.datetime-container {
-  margin-top: 10px;
-}
-
-.datetime-container label {
-  display: block;
-  margin-bottom: 5px;
 }
 </style>

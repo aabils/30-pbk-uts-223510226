@@ -1,22 +1,17 @@
-// router/index.js
-import Vue from 'vue';
-import Router from 'vue-router';
-import Todos from './components/post.vue';
-import Post from './components/todos.vue';
+import { createRouter, createWebHistory } from 'vue-router';
+import ActivityList from '../components/ActivityList.vue';
+import Post from '../components/Post';
+import Todos from '../components/Todos.vue';
 
-Vue.use(Router);
+const routes = [
+  { path: '/', component: ActivityList },
+  { path: '/Post', component: Post },
+  { path: '/Todos', component: Todos },
+];
 
-export default new Router({
-  routes: [
-    {
-      path: '/todos',
-      name: 'Todos',
-      components: Todos
-    },
-    {
-      path: '/post',
-      name: 'Post',
-      components: Post
-    }
-  ]
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
 });
+
+export default router;
