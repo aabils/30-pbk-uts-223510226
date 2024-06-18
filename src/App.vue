@@ -1,68 +1,70 @@
 <template>
-  <div>
-    <nav class="navbar">
-    </nav>
-    <div id="app">
-      <ActivityList/>
-    </div>
-  </div>
+  <q-layout view="hHh lpR fFf">
+    <q-header class="header">
+      <q-toolbar>
+        <q-btn-group flat class="rout-nav">
+          <router-link to="/todos">
+            <q-btn flat :outline="!isActive('/todos')" label="Todos" />
+          </router-link>
+          <router-link to="/posts">
+            <q-btn flat :outline="!isActive('/posts')" label="Posts" />
+          </router-link>
+          <router-link to="/albums">
+            <q-btn flat :outline="!isActive('/albums')" label="Albums" />
+          </router-link>
+        </q-btn-group>
+      </q-toolbar>
+    </q-header>
+
+    <q-page-container>
+      <q-page>
+        <router-view />
+      </q-page>
+    </q-page-container>
+  </q-layout>
 </template>
 
 <script>
-import ActivityList from './components/ActivityList.vue';
+import { useRoute } from 'vue-router';
 
 export default {
-  components: {
-    ActivityList
+  setup() {
+    const route = useRoute();
+    const isActive = (path) => route.path === path;
+    return {
+      isActive
+    };
   }
 };
 </script>
 
-
-
-<style>
+<style scoped>
+* {
+  font-family: 'Times New Roman', Times, serif
+}
 body {
-  margin: 0;
-  padding: 0;
+  background-color: #e0f7fa;
 }
 
-.navbar {
-  background-color: #333;
-  color: white;
-  width: 100%;
-  padding: 1rem;
-  position: fixed;
-  top: 0;
-  left: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+.header {
+  background-color: #01579b !important;
+  color: #e3f2fd !important;
+  padding: 10px;
+  box-shadow: 5px 5px 5px #004d6b4b;
 }
 
-.navbar ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  gap: 2rem;
+.rout-nav button {
+  color: #e3f2fd;
+  font-size: 16px;
 }
 
-.navbar ul li {
-  display: inline;
+.rout-nav a q-btn {
+  color: #01579b;
+  font-size: 16px;
 }
 
-.navbar ul li a {
-  color: white;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-#app {
-  font-family: Arial, sans-serif;
-  margin: 0 auto;
-  padding: 20px;
-  max-width: 600px;
-  padding-top: 80px; /* Tambahkan padding atas untuk menghindari navbar tetap */
+.rout-nav q-btn[flat][outline] {
+  border-color: #01579b;
+  color: #01579b;
 }
 </style>
